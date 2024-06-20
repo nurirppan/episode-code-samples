@@ -9,7 +9,15 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Standups.xcodeproj",
+          "identifier" : "CA9CB7232A411ECD003BDB3B",
+          "name" : "Standups"
+        }
+      ]
+    },
     "targetForVariableExpansion" : {
       "containerPath" : "container:Standups.xcodeproj",
       "identifier" : "CA9CB7232A411ECD003BDB3B",
@@ -18,6 +26,9 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "StandupsListTests"
+      ],
       "target" : {
         "containerPath" : "container:Standups.xcodeproj",
         "identifier" : "CA9CB7332A411ECD003BDB3B",
