@@ -11,9 +11,11 @@ struct DailyScrum: Identifiable, Codable {
     var lengthInMinutes: Int
     var lengthInMinutesAsDouble: Double {
         get {
+            /// return sebagai double
             Double(lengthInMinutes)
         }
         set {
+//            set sebagai int ke variable yang lain
             lengthInMinutes = Int(newValue)
         }
     }

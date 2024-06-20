@@ -29,10 +29,17 @@ struct ScrumsView: View {
             }
         }
         .sheet(isPresented: $isPresentingNewScrumView) {
+            /// buat baru
             NewScrumSheet(scrums: $scrums, isPresentingNewScrumView: $isPresentingNewScrumView)
         }
         .onChange(of: scenePhase) { phase in
-            if phase == .inactive { saveAction() }
+            if phase == .inactive {
+                /// fungsi ini di jalanin ketika user minimize aplikasi (belum keluar, tapi setengah keluar. {pas bisa pilih aplikasi lain})
+                /// jadi ketika mau minimize atau mau open bakal hit save
+                /// browser instagram bisa pakai kode seperti ini, makannya instagram kalau di open masih ada kontent sebelumnya
+                /// atau bisa di untuk syncronisasi dengan server
+                saveAction()
+            }
         }
     }
 }

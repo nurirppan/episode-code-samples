@@ -11,6 +11,7 @@ struct NewScrumSheet: View {
     
     var body: some View {
         NavigationStack {
+            /// sama dia tolong dismiss dan add nya di luar / di halaman sebelumnya
             DetailEditView(scrum: $newScrum)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

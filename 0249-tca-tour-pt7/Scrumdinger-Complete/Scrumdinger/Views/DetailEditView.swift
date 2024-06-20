@@ -24,12 +24,16 @@ struct DetailEditView: View {
                 ThemePicker(selection: $scrum.theme)
             }
             Section(header: Text("Attendees")) {
+                /// perulangan untuk menampilkan text peserta menggunakan text dan swipe delete
                 ForEach(scrum.attendees) { attendee in
                     Text(attendee.name)
                 }
                 .onDelete { indices in
                     scrum.attendees.remove(atOffsets: indices)
                 }
+                
+                /// jago juga logic nya
+                /// jadi textfield nya hanya satu saja, lalu di set ke text view dan di looping (performance nya bagus)
                 HStack {
                     TextField("New Attendee", text: $newAttendeeName)
                     Button(action: {
@@ -42,7 +46,7 @@ struct DetailEditView: View {
                         Image(systemName: "plus.circle.fill")
                             .accessibilityLabel("Add attendee")
                     }
-                    .disabled(newAttendeeName.isEmpty)
+                    .disabled(newAttendeeName.isEmpty) /// ini bagus punya swiftui nya
                 }
             }
         }

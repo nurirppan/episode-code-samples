@@ -34,7 +34,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CA6C644E2A68B8F800467FEF"
+               BlueprintIdentifier = "2AD85DAD2A7C3E5100DEA8D2"
                BuildableName = "ScrumdingerUITests.xctest"
                BlueprintName = "ScrumdingerUITests"
                ReferencedContainer = "container:Scrumdinger.xcodeproj">
