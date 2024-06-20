@@ -1,4 +1,0 @@
-Welcome to Point-Free!
------------------------------------------
-A Swift video series exploring functional
-programming and more.
