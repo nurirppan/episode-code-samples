@@ -65,6 +65,7 @@ struct AppFeature: Reducer {
     /// contoh kirim data dari halaman P ke halaman A (jauh kan, nah ini cara loncatnya pakai delegate)
     Reduce { state, action in
       switch action {
+        /// ini case dari halaman detail
       case let .path(.element(id: _, action: .detail(.delegate(action)))):
         switch action {
         case let .deleteStandup(id: id):
@@ -78,9 +79,12 @@ struct AppFeature: Reducer {
           return .none
         }
         
+        /// ini case dari halaman record meeting
       case let .path(.element(id: id, action: .recordMeeting(.delegate(action)))):
         switch action {
         case let .saveMeeting(transcript: transcript):
+          /// karna di init di awal jadi bisa pakai dropLast().last tanpa perlu pusing index ke berapa
+          /// sebenernya kode di bawah ini bisa di taruh di halaman tujuan, tapi si owner pengen kasih tau gimana caranya kalau misalnya di jalanin di parent view
           guard let detailID = state.path.ids.dropLast().last
           else {
             XCTFail("Record meeting is the last element in the stack. A detail feature should proceed it.")
@@ -101,16 +105,21 @@ struct AppFeature: Reducer {
         }
         
       case .path:
+        /// ini lupa untuk apa, mungkin next bisa di coba coba
         return .none
         
       case .standupsList:
+        /// ini lupa untuk apa, mungkin next bisa di coba coba
         return .none
       }
     }
     .forEach(\.path, action: /Action.path) {
+      /// wajib menggunakan foreach, kalau nggak ada forEach maka turunannya semuanya nggak bisa jalan karna nggak ada vm
       Path()
     }
     
+    /// Reduce di bawah ini dibuat jika ada perubahan maka 1 detik setelah nyaakan melakukan saving. jadi bukan via minimize atau kill aplikasi
+    /// bisa di pakai untuk case lain seperti sinkronisasi dengan server tanpa menggunakan save button
     Reduce { state, _ in
         .run { [standups = state.standupsList.standups] _ in
           enum CancelID { case saveDebounce }
@@ -140,16 +149,19 @@ struct AppView: View {
         )
       )
     } destination: { state in
+      /// ini dibuat untuk pindah ke halaman tujuan
       switch state {
       case .detail:
+//        ExampleView()
         CaseLet(
           /AppFeature.Path.State.detail,
            action: AppFeature.Path.Action.detail,
            then: StandupDetailView.init(store:)
         )
       case let .meeting(meeting, standup: standup):
-        MeetingView(meeting: meeting, standup: standup)
+        MeetingView(meeting: meeting, standup: standup) /// ini pindah halaman biasa yang mana halaman tersebut tidak terdapat reducer
       case .recordMeeting:
+        /// sedangkan ini cara pindah ke halaman tujuan yang mana halaman tujuan nya terdapat reducer
         CaseLet(
           /AppFeature.Path.State.recordMeeting,
            action: AppFeature.Path.Action.recordMeeting,
@@ -161,6 +173,7 @@ struct AppView: View {
 }
 
 extension URL {
+  /// simpan data menggunakan documentsDirectory langsung standups.json
   static let standups = Self.documentsDirectory.appending(component: "standups.json")
 }
 
