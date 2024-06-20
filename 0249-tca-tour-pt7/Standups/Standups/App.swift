@@ -1,22 +1,36 @@
 import ComposableArchitecture
 import SwiftUI
 
+/**
+ Feature itu ibarat viewModel, yang mana vm disini dipisahkan ada variabel dan action apa aja di setiap halamannya aja jelas dan dapat di unit test 100%
+ */
+
+/// parent feature of reducer (state and action)
 struct AppFeature: Reducer {
+  /// State sebagai variable
   struct State: Equatable {
+    /// case path StackState di daftarkan untuk mendaftarkan feature state nya atau biasa di sebut vm yang di init di dalam parent (kumpulan vm). di insert untuk halaman di bawahnya / child view (setelah push atau present)
     var path = StackState<Path.State>()
     var standupsList = StandupsListFeature.State()
   }
+  /// Action sebagai action dari user, contoh klik button
   enum Action: Equatable {
+    /// case path ini di buat untuk mengetahui di screen tersebut pindah ke halaman mana aja yang di daftarkan StackAction
     case path(StackAction<Path.State, Path.Action>)
     case standupsList(StandupsListFeature.Action)
   }
+  
+  /// Dependency disini digunakan agar bisa di unit test karna list disini menggunakan uuid dan ada date yang selalu berubah ubah jika get dari device
   @Dependency(\.date.now) var now
   @Dependency(\.uuid) var uuid
   
   struct Path: Reducer {
+    /// kumpulan feature yang mana ada state dan action yang wajib di daftarkan 1 : 1 (1 banding 1)
+    /// contoh detail dengan detail, dll
+    /// lalu akan masuk / tubs ke NavigationStackStore, yang mana NavigationStackStore ini berfungsi untuk pindah ke halaman tujuan menggunakan metode TCA agar tidak berat
     enum State: Equatable {
       case detail(StandupDetailFeature.State)
-      case meeting(Meeting, standup: Standup)
+      case meeting(Meeting, standup: Standup) /// kalau di cek ini model, coba cek ini untuk apa
       case recordMeeting(RecordMeetingFeature.State)
     }
     enum Action: Equatable {
@@ -25,6 +39,8 @@ struct AppFeature: Reducer {
       case recordMeeting(RecordMeetingFeature.Action)
     }
     var body: some ReducerOf<Self> {
+      /// jika ReducerOf / turunan reducernya tidak di daftarkan maka halaman tersebut tidak bisa di apa apa karna action dan variablenya nggak ada (vm nya tidak dikirim karna init state nya di awal)
+      /// pendaftaran ini di lakukan manual
       Scope(state: /State.detail, action: /Action.detail) {
         StandupDetailFeature()
       }
@@ -34,23 +50,30 @@ struct AppFeature: Reducer {
     }
   }
   
+  /// unit test hitung waktu dan save ke file manager
   @Dependency(\.continuousClock) var clock
   @Dependency(\.dataManager.save) var saveData
   
+  /// ini merupakan halaman utama, list daily
+  /// karna setiap feature wajib mempunya body ReducerOf untuk di daftarkan ada action apa aja
   var body: some ReducerOf<Self> {
     Scope(state: \.standupsList, action: /Action.standupsList) {
       StandupsListFeature()
     }
     
+    /// sedangkan fungsi ini adalah sebagai delegate. yang mana kiriman data dari child ke parent agar parent dapat melakukan tugasnya
+    /// contoh kirim data dari halaman P ke halaman A (jauh kan, nah ini cara loncatnya pakai delegate)
     Reduce { state, action in
       switch action {
       case let .path(.element(id: _, action: .detail(.delegate(action)))):
         switch action {
         case let .deleteStandup(id: id):
+          /// sedangkan ini untuk menghapus atau update list jika di hapus dari halaman detail
           state.standupsList.standups.remove(id: id)
           return .none
           
         case let .standupUpdated(standup):
+          /// contohnya adalah ini, menghapus jumlah person dari halaman detail agar di list (first view) berubah sesuai dengan data terakhir di edit pada halaman detail
           state.standupsList.standups[id: standup.id] = standup
           return .none
         }
