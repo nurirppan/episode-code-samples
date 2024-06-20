@@ -11,7 +11,7 @@ struct StandupDetailFeature: Reducer {
     case delegate(Delegate)
     case deleteButtonTapped
     case deleteMeetings(atOffsets: IndexSet)
-    case destination(PresentationAction<Destination.Action>)
+    case destination(PresentationAction<Destination.Action>) /// untuk pindah halaman bisa, untuk menampilkan alert bisa (intinya untuk view baru walaupun di halaman yang sama. mungkin overlay bisa)
     case editButtonTapped
     case saveStandupButtonTapped
     enum Delegate: Equatable {
@@ -20,8 +20,6 @@ struct StandupDetailFeature: Reducer {
     }
   }
   @Dependency(\.dismiss) var dismiss
-
-  // @Environment(\.dismiss) var dismiss
 
   struct Destination: Reducer {
     enum State: Equatable {
@@ -36,6 +34,7 @@ struct StandupDetailFeature: Reducer {
       }
     }
     var body: some ReducerOf<Self> {
+      /// seperti turunan dalam turunan
       Scope(state: /State.editStandup, action: /Action.editStandup) {
         StandupFormFeature()
       }
@@ -53,10 +52,12 @@ struct StandupDetailFeature: Reducer {
         return .none
 
       case .deleteButtonTapped:
+        /// alertnya dibuatkan disini, jadi TCA sudah membukannya untuk kita agar dapat di inject menggunakan "State"
         state.destination = .alert(
           AlertState {
             TextState("Are you sure you want to delete?")
           } actions: {
+            /// ada button ButtonState nya juga loh
             ButtonState(role: .destructive, action: .confirmDeletion) {
               TextState("Delete")
             }
@@ -70,6 +71,8 @@ struct StandupDetailFeature: Reducer {
 
       case .destination(.presented(.alert(.confirmDeletion))):
         // TODO: Delete this standup
+        /// case ini berfungsi menghapus daily stand up dari view alert detail dan juga menghapusnya dari list view menggunakan delegate
+        /// jadi hapusnya itu di listnya lalu memanggil fungsi dismiss agar nge pop ke halaman sebelumnya
         return .run { [id = state.standup.id] send in
           await send(.delegate(.deleteStandup(id: id)))
           await self.dismiss()
@@ -92,6 +95,7 @@ struct StandupDetailFeature: Reducer {
     .ifLet(\.$destination, action: /Action.destination) {
       Destination()
     }
+    /// ini kalau sudah di update datanya dari menu edit
     .onChange(of: \.standup) { oldValue, newValue in
       Reduce { state, action in
         .send(.delegate(.standupUpdated(newValue)))

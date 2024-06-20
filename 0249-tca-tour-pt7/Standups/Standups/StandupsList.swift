@@ -3,14 +3,15 @@ import SwiftUI
 
 struct StandupsListFeature: Reducer {
   struct State: Equatable {
-    @PresentationState var addStandup: StandupFormFeature.State?
-    var standups: IdentifiedArrayOf<Standup> = []
+    @PresentationState var addStandup: StandupFormFeature.State? /// contoh kode menggunakan present via tca agar lebih ringan kalau present berkali kali contoh 100x
+    var standups: IdentifiedArrayOf<Standup> = [] /// pakai IdentifiedArrayOf karna lebih stabil
+
     init(
       addStandup: StandupFormFeature.State? = nil
     ) {
       self.addStandup = addStandup
       do {
-        @Dependency(\.dataManager.load) var loadData
+        @Dependency(\.dataManager.load) var loadData /// penggunaan load data ini dari deeplink, jadi di generalkan. kalau save dan load data semuanya wajob via json decoder. karna ada fungsi setiap 1 detik melakukan save
         self.standups = try JSONDecoder().decode(IdentifiedArrayOf<Standup>.self, from: loadData(.standups))
       } catch {
         self.standups = []
@@ -28,6 +29,8 @@ struct StandupsListFeature: Reducer {
     Reduce { state, action in
       switch action {
       case .addButtonTapped:
+        /// si owner membuat fungsi ini ketika pertama kali klik tambah data dari list daily
+        /// kalau bisnis logic nya via button save tidak perlu seperti ini
         state.addStandup = StandupFormFeature.State(standup: Standup(id: self.uuid()))
         return .none
 
@@ -46,6 +49,7 @@ struct StandupsListFeature: Reducer {
         return .none
       }
     }
+    /// karna bisa dari deeplink, dan bisa menyebabkan crash juga jadi menggunakan iflet
     .ifLet(\.$addStandup, action: /Action.addStandup) {
       StandupFormFeature()
     }
@@ -56,10 +60,12 @@ struct StandupsListView: View {
   let store: StoreOf<StandupsListFeature>
 
   var body: some View {
+    /// WithViewStore agar ringan walaupun sudah di push sebanyak 100 x
     WithViewStore(self.store, observe: \.standups) { viewStore in
       List {
         ForEach(viewStore.state) { standup in
           NavigationLink(
+            /// walaupun sudah di daftarkan di "NavigationStackStore", tetap harus di init agar root nya terpanggil
             state: AppFeature.Path.State.detail(StandupDetailFeature.State(standup: standup))
           ) {
             CardView(standup: standup)
@@ -75,12 +81,14 @@ struct StandupsListView: View {
           }
         }
       }
+      /// contoh penggunaan present
       .sheet(
         store: self.store.scope(
           state: \.$addStandup,
           action: { .addStandup($0) }
         )
       ) { store in
+        /// kenapa setiap screen wajib menggunakan NavigationStack, coba cari tau apakah penggunaannya emang seperti ini atau agar toolbarnya berdiri sendiri
         NavigationStack {
           StandupFormView(store: store)
             .navigationTitle("New standup")

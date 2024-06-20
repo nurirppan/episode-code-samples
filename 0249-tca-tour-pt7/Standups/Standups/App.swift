@@ -142,6 +142,7 @@ struct AppView: View {
     NavigationStackStore(
       self.store.scope(state: \.path, action: { .path($0) })
     ) {
+      /// di set halaman pertama yang  mana
       StandupsListView(
         store: self.store.scope(
           state: \.standupsList,
