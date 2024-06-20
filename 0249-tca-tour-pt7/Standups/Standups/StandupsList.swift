@@ -61,6 +61,7 @@ struct StandupsListView: View {
 
   var body: some View {
     /// WithViewStore agar ringan walaupun sudah di push sebanyak 100 x
+    /// WithViewStore disini hanya fokus untuk get data array standups agar tidak berat
     WithViewStore(self.store, observe: \.standups) { viewStore in
       List {
         ForEach(viewStore.state) { standup in

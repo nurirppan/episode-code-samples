@@ -37,8 +37,10 @@ struct CounterFeature: Reducer {
   private enum CancelID {
     case timer
   }
+  
   @Dependency(\.continuousClock) var clock
   @Dependency(\.numberFact) var numberFact
+  
   var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
@@ -89,6 +91,7 @@ struct ContentView: View {
   let store: StoreOf<CounterFeature>
 
   var body: some View {
+    /// WithViewStore $0, di get semua. jadi cukup berat kalau view nya complex
     WithViewStore(self.store, observe: { $0 }) { viewStore in
       Form {
         Section {
