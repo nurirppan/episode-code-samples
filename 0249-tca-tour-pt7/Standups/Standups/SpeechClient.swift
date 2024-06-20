@@ -67,6 +67,7 @@ extension SpeechClient: DependencyKey {
     }
   )
 
+  /// bisa di pakai untuk preview, atau bisa untuk unit test
   static let previewValue = SpeechClient(
     requestAuthorization: { .authorized },
     start: {
@@ -97,6 +98,7 @@ extension SpeechClient: DependencyKey {
   )
 }
 
+/// extension DependencyValues ini untuk membuat dependency key custom seperti dependency uuid agar bisa di unit test
 extension DependencyValues {
   var speechClient: SpeechClient {
     get { self[SpeechClient.self] }

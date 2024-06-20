@@ -4,6 +4,7 @@ import SwiftUI
 
 struct RecordMeetingFeature: Reducer {
   struct State: Equatable {
+    /// untuk menampilkan alert
     @PresentationState var alert: AlertState<Action.Alert>?
     var secondsElapsed = 0
     var speakerIndex = 0
@@ -30,9 +31,10 @@ struct RecordMeetingFeature: Reducer {
       case saveMeeting(transcript: String)
     }
   }
-  @Dependency(\.continuousClock) var clock
+  @Dependency(\.continuousClock) var clock /// untuk detik
   @Dependency(\.dismiss) var dismiss
-  @Dependency(\.speechClient) var speechClient
+  @Dependency(\.speechClient) var speechClient /// untuk permission
+  
   var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
@@ -43,6 +45,7 @@ struct RecordMeetingFeature: Reducer {
         }
 
       case .alert(.presented(.confirmSave)):
+        /// di savenya di halaman list
         return .run { [transcript = state.transcript] send in
           await send(.delegate(.saveMeeting(transcript: transcript)))
           await self.dismiss()
