@@ -22,27 +22,85 @@ struct StandupsApp: App {
       var standup = Standup.mock
       let _ = standup.duration = .seconds(6)
 
+        /// ubah angkanya untuk testing case yang lain
+        let value: Int = 2
+        switch value {
+        case 0:
+            firstView()
+        case 1:
+            /// coba depplink ke halaman detail
+            secondView()
+        case 2:
+            /// coba depplink ke halaman detail lalu record
+            thirdView()
+        default :
+            firstView()
+        }
         /// ini flow normal, masuk ke halaman beranda biasa karna "StackState" nya kosong
         /// StackState ini di pakai untuk deeplink dari halaman apapun ke halaman tujuan (fixing dari : bug dari swiftui yang gk bisa pindah ke halaman tujuan jika halaman tersebut tidak terbuka)
-      AppView(
-        store: Store(
-          initialState: AppFeature.State(
-            path: StackState([
-//              .detail(StandupDetailFeature.State(standup: .mock)),
-//              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
-//              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
-            ]),
-            standupsList: StandupsListFeature.State(
-//              standups: [standup]
-            )
-          )
-        ) {
-          AppFeature()
-            ._printChanges() /// ini untuk menampilkan perubahan pada log. contohnya di bawah
-        }
-      )
+      
     }
   }
+    
+    func firstView() -> some View {
+        AppView(
+          store: Store(
+            initialState: AppFeature.State(
+              path: StackState([
+  //              .detail(StandupDetailFeature.State(standup: .mock)),
+  //              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
+  //              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
+              ]),
+              standupsList: StandupsListFeature.State(
+  //              standups: [standup]
+              )
+            )
+          ) {
+            AppFeature()
+              ._printChanges() /// ini untuk menampilkan perubahan pada log. contohnya di bawah
+          }
+        )
+    }
+    
+    func secondView() -> some View {
+        AppView(
+          store: Store(
+            initialState: AppFeature.State(
+              path: StackState([
+                .detail(StandupDetailFeature.State(standup: .mock)),
+  //              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
+  //              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
+              ]),
+              standupsList: StandupsListFeature.State(
+  //              standups: [standup]
+              )
+            )
+          ) {
+            AppFeature()
+              ._printChanges() /// ini untuk menampilkan perubahan pada log. contohnya di bawah
+          }
+        )
+    }
+    
+    func thirdView() -> some View {
+        AppView(
+          store: Store(
+            initialState: AppFeature.State(
+              path: StackState([
+                .detail(StandupDetailFeature.State(standup: .mock)),
+                .recordMeeting(RecordMeetingFeature.State(standup: Standup.mock)),
+  //              .recordMeeting(RecordMeetingFeature.State(standup: standup)),
+              ]),
+              standupsList: StandupsListFeature.State(
+  //              standups: [standup]
+              )
+            )
+          ) {
+            AppFeature()
+              ._printChanges() /// ini untuk menampilkan perubahan pada log. contohnya di bawah
+          }
+        )
+    }
 }
 
 //contoh log tambah daily
